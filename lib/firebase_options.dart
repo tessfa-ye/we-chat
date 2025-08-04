@@ -63,6 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '287503120557',
     projectId: 'we-chat-231cc',
     storageBucket: 'we-chat-231cc.firebasestorage.app',
+    androidClientId: '287503120557-rl9ikjc6877i1ej6cunfi0sh9ts4vmg7.apps.googleusercontent.com',
+    iosClientId: '287503120557-vi123g96b5krv4uhahm1v91tt0h2kn3b.apps.googleusercontent.com',
     iosBundleId: 'com.example.weChat',
   );
 

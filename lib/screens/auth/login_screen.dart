@@ -1,6 +1,10 @@
+import 'dart:developer';
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:we_chat/main.dart';
-import 'package:we_chat/screens/home_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../main.dart';
+import '../home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,9 +26,63 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  _handleGoogleBtnClick() {
+    _signInWithGoogle().then((user) {
+      if (user != null) {
+        log('\nUser signed in: ${user.user}');
+        log('\nUserAdditionalInfo: ${user.additionalUserInfo}');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    });
+  }
+
+  Future<UserCredential> _signInWithGoogle() async {
+    try {
+      await InternetAddress.lookup('google.com');
+      log('Starting Google Sign-In...');
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId:
+            "287503120557-n52h77d180jr1kmfcmrvmuutsbogbeec.apps.googleusercontent.com",
+        scopes: ['email', 'profile'],
+      );
+      log('GoogleSignIn initialized');
+
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      log('Google Sign-In result: $googleUser');
+
+      if (googleUser == null) {
+        throw Exception('Google Sign-In was canceled by the user');
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      log(
+        'Google Auth: accessToken=${googleAuth.accessToken}, idToken=${googleAuth.idToken}',
+      );
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      log('Signing in with Firebase...');
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      log('Firebase Sign-In successful: ${userCredential.user}');
+      return userCredential;
+    } catch (e, stackTrace) {
+      log('Google Sign-In Error: $e\nStackTrace: $stackTrace');
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    mq = MediaQuery.of(context).size;
+    // mq = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -51,10 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 elevation: 1,
               ),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
+                _handleGoogleBtnClick();
               },
               icon: Image.asset('images/google.png', height: mq.height * 0.03),
               label: RichText(
