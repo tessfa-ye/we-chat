@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:we_chat/api/apis.dart';
+import 'package:we_chat/helper/dialogs.dart';
 import '../../main.dart';
 import '../home_screen.dart';
 
@@ -27,19 +29,33 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _handleGoogleBtnClick() {
-    _signInWithGoogle().then((user) {
+    //showing progress bar
+    Dialogs.showProgessBar(context);
+    _signInWithGoogle().then((user) async {
+      //hiding progress bar
+      Navigator.pop(context);
       if (user != null) {
         log('\nUser signed in: ${user.user}');
         log('\nUserAdditionalInfo: ${user.additionalUserInfo}');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+
+        if ((await APIs.userExists())) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        } else {
+          await APIs.createUser().then((value) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          });
+        }
       }
     });
   }
 
-  Future<UserCredential> _signInWithGoogle() async {
+  Future<UserCredential?> _signInWithGoogle() async {
     try {
       await InternetAddress.lookup('google.com');
       log('Starting Google Sign-In...');
@@ -69,14 +85,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       log('Signing in with Firebase...');
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
+      final userCredential = await APIs.auth.signInWithCredential(credential);
       log('Firebase Sign-In successful: ${userCredential.user}');
       return userCredential;
-    } catch (e, stackTrace) {
-      log('Google Sign-In Error: $e\nStackTrace: $stackTrace');
-      rethrow;
+    } catch (e) {
+      log('\n_signInWithGoogle: $e');
+      Dialogs.showSnackBar(context, 'some thing went wrong(check internet!)');
+      return null;
     }
   }
 

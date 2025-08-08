@@ -1,7 +1,10 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:we_chat/api/apis.dart';
 import 'package:we_chat/main.dart';
 import 'package:we_chat/screens/auth/login_screen.dart';
+import 'package:we_chat/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,15 +17,26 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 4), () {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+
+      if (APIs.auth.currentUser != null) {
+        log('\nUser: ${APIs.auth.currentUser}');
+        // navigate to home screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        //// navigate to login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     });
   }
 
@@ -42,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
             bottom: mq.height * 0.1,
             width: mq.width,
             child: Text(
-              'this is the opening screen of the app and it will be replaced by the login screen 🚮',
+              'this is the opening screen of the app 🚮',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
