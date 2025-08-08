@@ -4,10 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:we_chat/models/chat_user.dart';
 
-// New imports for HTTP and JSON
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 class APIs {
   // for authentication
   static FirebaseAuth auth = FirebaseAuth.instance;
@@ -71,29 +67,5 @@ class APIs {
       'name': me.name,
       'about': me.about,
     });
-  }
-
-  // Sends login data to your PHP backend for storage in MySQL.
-  static Future<void> sendLoginData(
-    String idToken,
-    Map<String, dynamic> user,
-  ) async {
-    final url = Uri.parse(
-      'http://10.0.2.2/apiflutter/handle_login.php',
-    ); // Android emulator use this alias
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({'id_token': idToken, 'user': user}),
-    );
-
-    if (response.statusCode == 200) {
-      final result = jsonDecode(response.body);
-      if (result['status'] != 'success') {
-        throw Exception('Backend login failed');
-      }
-    } else {
-      throw Exception('Server error: ${response.statusCode}');
-    }
   }
 }
