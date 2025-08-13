@@ -33,7 +33,10 @@ dependencies:
   cached_network_image: ^3.4.1
 
   # for send data
-  http: ^0.13.5
+  http: 1.4.0
+
+  # for image picking
+  image_picker: ^0.8.7+4
 
 flutter_launcher_icons:
   android: "ic_launcher"

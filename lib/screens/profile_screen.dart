@@ -1,10 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:we_chat/api/apis.dart';
 import 'package:we_chat/helper/dialogs.dart';
 import 'package:we_chat/main.dart';
@@ -23,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formkey = GlobalKey<FormState>();
+  String? _image;
 
   @override
   Widget build(BuildContext context) {
@@ -68,21 +71,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 children: [
                   SizedBox(width: mq.width, height: mq.height * .03),
-                  //leading: const CircleAvatar(child: Icon(Icons.person)),
                   Stack(
                     children: [
                       // profile picture
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(mq.height * .1),
-                        child: CachedNetworkImage(
-                          width: mq.height * .2,
-                          height: mq.height * .2,
-                          fit: BoxFit.fill,
-                          imageUrl: widget.user.image,
-                          errorWidget: (context, url, error) =>
-                              const CircleAvatar(child: Icon(Icons.person)),
-                        ),
-                      ),
+                      _image != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                mq.height * .1,
+                              ),
+                              child: Image.file(
+                                File(_image!),
+                                width: mq.height * .2,
+                                height: mq.height * .2,
+                                fit: BoxFit.fill,
+                              ),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                mq.height * .1,
+                              ),
+                              child: CachedNetworkImage(
+                                width: mq.height * .2,
+                                height: mq.height * .2,
+                                fit: BoxFit.fill,
+                                imageUrl: widget.user.image,
+                                errorWidget: (context, url, error) =>
+                                    const CircleAvatar(
+                                      child: Icon(Icons.person),
+                                    ),
+                              ),
+                            ),
 
                       // edit image buttom
                       Positioned(
@@ -90,7 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         bottom: 0,
                         child: MaterialButton(
                           elevation: 1,
-                          onPressed: () {},
+                          onPressed: () {
+                            _showBottomSheet();
+                          },
                           shape: const CircleBorder(),
                           color: Colors.white,
                           child: Icon(Icons.edit, color: Colors.blue),
@@ -169,6 +189,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // bottom sheet for picking a profile for user
+  void _showBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return ListView(
+          shrinkWrap: true,
+          padding: EdgeInsets.only(
+            top: mq.height * .03,
+            bottom: mq.height * .05,
+          ),
+          children: [
+            // pick profile picture label
+            const Text(
+              'Pick Profile Picture',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            ),
+
+            SizedBox(height: mq.height * .02),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // pick from gallery button
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: const CircleBorder(),
+                    fixedSize: Size(mq.width * .25, mq.height * .1),
+                  ),
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    // Pick an image.
+                    final XFile? image = await picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (image != null) {
+                      log(
+                        'image path: ${image.path} -- MimeType: ${image.mimeType}',
+                      );
+                      setState(() {
+                        _image = image.path;
+                      });
+
+                      // for hidding bottom sheet
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Image.asset('images/gallery.png'),
+                ),
+                // take picture from camera button
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: const CircleBorder(),
+                    fixedSize: Size(mq.width * .25, mq.height * .1),
+                  ),
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    // Pick an image.
+                    final XFile? image = await picker.pickImage(
+                      source: ImageSource.camera,
+                    );
+                    if (image != null) {
+                      log('image path: ${image.path}');
+                      setState(() {
+                        _image = image.path;
+                      });
+
+                      // for hidding bottom sheet
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Image.asset('images/camera.png'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
