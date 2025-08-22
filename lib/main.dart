@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
           centerTitle: true,
-          elevation: 1,
+          elevation: 0,
           iconTheme: IconThemeData(color: Colors.black),
           titleTextStyle: TextStyle(
             color: Colors.black,
