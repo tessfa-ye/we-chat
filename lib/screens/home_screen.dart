@@ -1,9 +1,6 @@
 // ignore_for_file: unnecessary_const, non_constant_identifier_names, deprecated_member_use
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:we_chat/api/apis.dart';
 import 'package:we_chat/main.dart';
@@ -27,20 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     APIs.getSelfInfo();
-    APIs.updateActiveStatus(true);
-    SystemChannels.lifecycle.setMessageHandler((message) {
-      log('Lifecycle message: $message');
-
-      if (APIs.auth.currentUser != null) {
-        if (message.toString().contains('resume')) {
-          APIs.updateActiveStatus(true);
-        }
-        if (message.toString().contains('pause')) {
-          APIs.updateActiveStatus(false);
-        }
-      }
-      return Future.value(message);
-    });
   }
 
   @override

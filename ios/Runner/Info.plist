@@ -55,12 +55,6 @@
 			<string>com.googleusercontent.apps.287503120557-vi123g96b5krv4uhahm1v91tt0h2kn3b</string>
 		</array>
 	</dict>
-	</array>
-	<!-- permissions for picking image from gallary or taking image from camera -->
-	<key>NSPhotoLibraryUsageDescription</key>
-	<String>App requires access to the photo library for picking pictures.</String>
-	<key>NSCameraUsageDescription</key>
-	<String>App requires access to the camera for taking pictures.</String>
-
+</array>
 </dict>
 </plist>
