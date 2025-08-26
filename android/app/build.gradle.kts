@@ -25,13 +25,17 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    
+    // ...existing code...
     defaultConfig {
         applicationId = "com.example.we_chat"
-        minSdk = 23
-        targetSdk = flutter.targetSdkVersion
+        minSdkVersion(flutter.minSdkVersion)
+        targetSdkVersion(flutter.targetSdkVersion)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+// ...existing code...
+
 
     buildTypes {
         release {
