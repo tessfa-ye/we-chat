@@ -1,5 +1,3 @@
-// ignore_for_file: curly_braces_in_flow_control_structures, deprecated_member_use
-
 import 'dart:developer';
 import 'dart:io';
 
@@ -7,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:we_chat/helper/dialogs.dart';
 import 'package:we_chat/helper/my_date_util.dart';
 import 'package:we_chat/main.dart';
 import 'package:we_chat/models/chat_user.dart';
