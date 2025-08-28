@@ -65,12 +65,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                     width: mq.height * .2,
                     height: mq.height * .2,
                     fit: BoxFit.cover,
-                    imageUrl: APIs.me.image,
-                    cacheKey:
-                        APIs.me.image +
-                        DateTime.now().millisecondsSinceEpoch.toString(),
-                    placeholder: (context, url) =>
-                        const CircleAvatar(child: Icon(Icons.person)),
+                    imageUrl: widget.user.image,
                     errorWidget: (context, url, error) =>
                         const CircleAvatar(child: Icon(Icons.person)),
                   ),
