@@ -40,9 +40,11 @@ dependencies:
   # for image picking
   image_picker: ^0.8.7+4
 
-  firebase_storage: 12.4.10
   # for emoji picker
   emoji_picker_flutter: ^4.3.0
+
+  # for push notifications
+  firebase_messaging: ^15.1.13
 
 flutter_launcher_icons:
   android: "ic_launcher"

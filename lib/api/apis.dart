@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:we_chat/models/chat_user.dart';
 import 'package:we_chat/models/message.dart';
@@ -15,6 +17,47 @@ class APIs {
   static late ChatUser me;
   static User get user => auth.currentUser!;
 
+  // for accessing push notifications
+  static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
+
+  // for getting firebase messaging token
+  static Future<void> getFirebaseMessagingToken() async {
+    await fMessaging.requestPermission();
+
+    await fMessaging.getToken().then((t) {
+      if (t != null) {
+        me.pushToken = t;
+        log('Firebase Messaging Token: $t');
+      }
+    });
+  }
+
+  // for sending push notifications
+  static Future<void> sendPushNotification(
+    ChatUser chatUser,
+    String msg,
+  ) async {
+    try {
+      final body = {
+        "to": chatUser.pushToken,
+        "notification": {"title": chatUser.name, "body": msg},
+      };
+
+      var res = await post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'key=YOUR_SERVER_KEY',
+        },
+        body: jsonEncode(body),
+      );
+      log('Response status: ${res.statusCode}');
+      log('Response body: ${res.body}');
+    } catch (e) {
+      log('\nSending push notification: $e');
+    }
+  }
+
   static Future<bool> userExists() async {
     return (await firestore.collection('users').doc(user.uid).get()).exists;
   }
@@ -23,6 +66,8 @@ class APIs {
     await firestore.collection('users').doc(user.uid).get().then((doc) async {
       if (doc.exists) {
         me = ChatUser.fromJson(doc.data()!);
+        getFirebaseMessagingToken();
+        APIs.updateActiveStatus(true);
         log('My Data: ${doc.data()}');
       } else {
         await createUser().then((_) => getSelfInfo());
@@ -126,6 +171,7 @@ class APIs {
     firestore.collection('users').doc(user.uid).update({
       'is_online': isOnline,
       'last_active': DateTime.now().millisecondsSinceEpoch.toString(),
+      'push_token': me.pushToken,
     });
   }
 
@@ -167,7 +213,13 @@ class APIs {
     final ref = firestore.collection(
       'chats/${getConversationID(chatUser.id)}/messages',
     );
-    ref.doc(time).set(message.toJson());
+    ref
+        .doc(time)
+        .set(message.toJson())
+        .then(
+          (value) =>
+              sendPushNotification(chatUser, type == Type.text ? msg : 'Image'),
+        );
   }
 
   // update read status of message
