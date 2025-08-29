@@ -46,6 +46,9 @@ dependencies:
   # for push notifications
   firebase_messaging: ^15.1.13
 
+  # for creating notification channels
+  flutter_notification_channel: ^3.1.1
+
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true

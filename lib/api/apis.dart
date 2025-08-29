@@ -30,6 +30,15 @@ class APIs {
         log('Firebase Messaging Token: $t');
       }
     });
+    // for handling foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      log('Got a message whilst in the foreground!');
+      log('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        log('Message also contained a notification: ${message.notification}');
+      }
+    });
   }
 
   // for sending push notifications
@@ -39,16 +48,18 @@ class APIs {
   ) async {
     try {
       final body = {
-        "to": chatUser.pushToken,
-        "notification": {"title": chatUser.name, "body": msg},
+        "token": chatUser.pushToken,
+        "title": chatUser.name,
+        "body": msg,
+        "android_channel_id": "chats",
+
+        "data": {"some_data": "User ID: ${me.id}"},
       };
 
-      var res = await post(
-        Uri.parse('https://fcm.googleapis.com/fcm/send'),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'key=YOUR_SERVER_KEY',
-        },
+      final res = await http.post(
+        // Uri.parse('http://10.0.2.2:3000/send-notification'),
+        Uri.parse('http://192.168.137.1:3000/send-notification'),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
         body: jsonEncode(body),
       );
       log('Response status: ${res.statusCode}');

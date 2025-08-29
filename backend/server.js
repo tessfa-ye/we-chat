@@ -3,6 +3,7 @@ import multer from 'multer';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import {sendNotification} from './notification_controller.js';
 
 const app = express();
 app.use(cors());
@@ -55,6 +56,21 @@ app.post('/upload', upload.single('image'), (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Server error:', err.message);
   res.status(500).json({ error: err.message });
+});
+
+app.post('/send-notification', async (req, res) => {
+  const { token, title, body } = req.body;
+
+  if (!token || !title || !body) {
+    return res.status(400).json({ error: 'token, title, and body are required' });
+  }
+
+  try {
+    const response = await sendNotification(token, title, body);
+    res.json({ success: true, response });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(3000, '0.0.0.0', () => console.log('Server running on port 3000'));
