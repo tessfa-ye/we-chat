@@ -81,8 +81,16 @@ app.post('/delete', (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  const filename = path.basename(url); // Extract file name from URL
+  // Extract filename from URL
+  const filename = path.basename(url);
+
+  // Build absolute path
   const filePath = path.join(uploadDir, filename);
+
+  // Safety check: ensure file is inside uploadDir
+  if (!filePath.startsWith(uploadDir)) {
+    return res.status(400).json({ error: 'Invalid file path' });
+  }
 
   fs.unlink(filePath, (err) => {
     if (err) {
