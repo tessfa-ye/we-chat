@@ -314,4 +314,12 @@ class APIs {
       }
     }
   }
+
+  // update message
+  static Future<void> updateMessage(Message message, String updatedMsg) async {
+    await firestore
+        .collection('chats/${getConversationID(message.told)}/messages')
+        .doc(message.sent)
+        .update({'msg': updatedMsg});
+  }
 }

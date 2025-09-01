@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -228,7 +229,10 @@ class _MessageCardState extends State<MessageCard> {
               _OptionItem(
                 icon: const Icon(Icons.edit, color: Colors.blue, size: 26),
                 name: 'Edit Message',
-                onTap: () {},
+                onTap: () {
+                  Navigator.pop(context);
+                  _showMessageUpdateDialog(context, widget);
+                },
               ),
 
             // delete option
@@ -285,6 +289,58 @@ class _MessageCardState extends State<MessageCard> {
   }
 }
 
+// dialog for updating message content
+void _showMessageUpdateDialog(BuildContext context, dynamic widget) {
+  String updatedMsg = widget.message.msg;
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      contentPadding: EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Row(
+        children: [
+          Icon(Icons.message, color: Colors.blue, size: 28),
+          Text('Update Message'),
+        ],
+      ),
+
+      // content
+      content: TextFormField(
+        initialValue: updatedMsg,
+        maxLines: null,
+        onChanged: (value) => updatedMsg = value,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+        ),
+      ),
+
+      actions: [
+        MaterialButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'cancel',
+            style: TextStyle(color: Colors.blue, fontSize: 16),
+          ),
+        ),
+
+        MaterialButton(
+          onPressed: () {
+            Navigator.pop(context);
+            APIs.updateMessage(widget.message, updatedMsg);
+          },
+          child: Text(
+            'update',
+            style: TextStyle(color: Colors.blue, fontSize: 16),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// custom option item widget(for copy, edit, delete)
 class _OptionItem extends StatelessWidget {
   const _OptionItem({
     required this.icon,
