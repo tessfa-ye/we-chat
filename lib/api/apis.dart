@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:we_chat/models/chat_user.dart';
 import 'package:we_chat/models/message.dart';
@@ -253,7 +252,6 @@ class APIs {
   }
 
   // send chat image
-  // send chat image
   static Future<void> sendChatImage(ChatUser chatUser, File file) async {
     try {
       final request = http.MultipartRequest(
@@ -286,6 +284,34 @@ class APIs {
       }
     } catch (e) {
       log("Error uploading chat image: $e");
+    }
+  }
+
+  // for deleting messages
+  static Future<void> deleteMessage(Message message) async {
+    await firestore
+        .collection('chats/${getConversationID(message.told)}/messages')
+        .doc(message.sent)
+        .delete();
+
+    if (message.type == Type.image) {
+      try {
+        // Call backend API to delete the image file
+        final res = await http.post(
+          // Uri.parse("http://10.0.2.2:3000/delete"),
+          Uri.parse("http://192.168.137.1:3000/delete"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"url": message.msg}), // msg contains image URL
+        );
+
+        if (res.statusCode == 200) {
+          log("Image deleted from server");
+        } else {
+          log("Failed to delete image: ${res.body}");
+        }
+      } catch (e) {
+        log("Error deleting image: $e");
+      }
     }
   }
 }

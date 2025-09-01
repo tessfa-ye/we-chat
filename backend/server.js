@@ -73,4 +73,27 @@ app.post('/send-notification', async (req, res) => {
   }
 });
 
+// Delete images
+app.post('/delete', (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+
+  const filename = path.basename(url); // Extract file name from URL
+  const filePath = path.join(uploadDir, filename);
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error('Error deleting file:', err.message);
+      return res.status(500).json({ error: 'Failed to delete image' });
+    }
+
+    console.log(`Deleted image: ${filePath}`);
+    res.json({ success: true });
+  });
+});
+
+
 app.listen(3000, '0.0.0.0', () => console.log('Server running on port 3000'));
