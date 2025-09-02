@@ -315,6 +315,7 @@ void _showMessageUpdateDialog(BuildContext context, dynamic widget) {
       ),
 
       actions: [
+        // cancel button
         MaterialButton(
           onPressed: () {
             Navigator.pop(context);
@@ -325,6 +326,7 @@ void _showMessageUpdateDialog(BuildContext context, dynamic widget) {
           ),
         ),
 
+        // update button
         MaterialButton(
           onPressed: () {
             Navigator.pop(context);
