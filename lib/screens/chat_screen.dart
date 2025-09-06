@@ -86,9 +86,65 @@ class _ChatScreenState extends State<ChatScreen> {
                             reverse: true,
                             itemCount: _list.length,
                             padding: EdgeInsets.only(top: mq.height * 0.01),
-                            physics: BouncingScrollPhysics(),
-                            itemBuilder: (context, Index) {
-                              return MessageCard(message: _list[Index]);
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final message = _list[index];
+
+                              final msgDate =
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                    int.parse(message.sent),
+                                  );
+
+                              // previous message (to check for date change)
+                              DateTime? prevDate;
+                              if (index < _list.length - 1) {
+                                prevDate = DateTime.fromMillisecondsSinceEpoch(
+                                  int.parse(_list[index + 1].sent),
+                                );
+                              }
+
+                              // check if we need to insert a date header
+                              bool showHeader =
+                                  prevDate == null ||
+                                  msgDate.day != prevDate.day ||
+                                  msgDate.month != prevDate.month ||
+                                  msgDate.year != prevDate.year;
+
+                              return Column(
+                                children: [
+                                  if (showHeader)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      child: Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                            horizontal: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.shade100,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            MyDateUtil.getFormattedDate(
+                                              context: context,
+                                              time: message.sent,
+                                            ),
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  MessageCard(message: message),
+                                ],
+                              );
                             },
                           );
                         } else {

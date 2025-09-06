@@ -105,4 +105,23 @@ class MyDateUtil {
         return '';
     }
   }
+
+  // for grouping messages by date (Today, Yesterday, or full date)
+  static String getFormattedDate({
+    required BuildContext context,
+    required String time,
+  }) {
+    final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
+    final DateTime now = DateTime.now();
+
+    if (now.day == sent.day &&
+        now.month == sent.month &&
+        now.year == sent.year) {
+      return 'Today';
+    }
+    if ((now.difference(sent).inHours / 24).round() == 1) {
+      return 'Yesterday';
+    }
+    return '${sent.day} ${_getMonth(sent)} ${sent.year}';
+  }
 }
